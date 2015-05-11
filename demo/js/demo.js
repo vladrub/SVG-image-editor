@@ -152,14 +152,14 @@ $(document).ready(function(){
 
     imageEditor.addLayer({
         'type': 'image',
-        'src': 'demo/svg/Boy_And_Turtle_clip_art.svg',
+        'src': 'SVG-image-editor-master/demo/svg/Boy_And_Turtle_clip_art.svg',
         'width': 266, 'height': 248,
         'x': 211, 'y': 495, rotation: 0
     });
 
     imageEditor.addLayer({
         'type': 'image',
-        'src': 'demo/svg/Animal_Number_One.svg',
+        'src': 'SVG-image-editor-master/demo/svg/Animal_Number_One.svg',
         'width': 287, 'height': 406,
         'x': 547, 'y': 439, rotation: 373
     });
