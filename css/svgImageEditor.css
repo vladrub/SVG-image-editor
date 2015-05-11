@@ -1,0 +1,85 @@
+/************************************************************************************
+SVG image editor global styles
+*************************************************************************************/
+#phantomSize {
+  padding: 0 !important; }
+
+#imageEditor svg g.layer .resizable-group,
+#imageEditor svg g.layer .rotatable-group {
+  display: none; }
+#imageEditor svg g.layer.active {
+  z-index: 999; }
+  #imageEditor svg g.layer.active .draggable-handle {
+    opacity: 1; }
+  #imageEditor svg g.layer.active .rotatable-group {
+    display: block; }
+    #imageEditor svg g.layer.active .rotatable-group .rotatable-handle {
+      cursor: alias; }
+  #imageEditor svg g.layer.active .resizable-group {
+    display: block; }
+  #imageEditor svg g.layer.active circle, #imageEditor svg g.layer.active rect, #imageEditor svg g.layer.active line {
+    fill: #ffffff;
+    stroke: #333333; }
+#imageEditor svg g.layer .draggable-handle {
+  opacity: 0; }
+#imageEditor svg g.layer[data-orientation="n"] .resizable-group rect.ul-resizable-handle, #imageEditor svg g.layer[data-orientation="s"] .resizable-group rect.ul-resizable-handle {
+  cursor: nwse-resize; }
+#imageEditor svg g.layer[data-orientation="n"] .resizable-group rect.ur-resizable-handle, #imageEditor svg g.layer[data-orientation="s"] .resizable-group rect.ur-resizable-handle {
+  cursor: nesw-resize; }
+#imageEditor svg g.layer[data-orientation="n"] .resizable-group rect.ll-resizable-handle, #imageEditor svg g.layer[data-orientation="s"] .resizable-group rect.ll-resizable-handle {
+  cursor: nesw-resize; }
+#imageEditor svg g.layer[data-orientation="n"] .resizable-group rect.lr-resizable-handle, #imageEditor svg g.layer[data-orientation="s"] .resizable-group rect.lr-resizable-handle {
+  cursor: nwse-resize; }
+#imageEditor svg g.layer[data-orientation="e"] .resizable-group rect.ul-resizable-handle, #imageEditor svg g.layer[data-orientation="w"] .resizable-group rect.ul-resizable-handle {
+  cursor: nesw-resize; }
+#imageEditor svg g.layer[data-orientation="e"] .resizable-group rect.ur-resizable-handle, #imageEditor svg g.layer[data-orientation="w"] .resizable-group rect.ur-resizable-handle {
+  cursor: nwse-resize; }
+#imageEditor svg g.layer[data-orientation="e"] .resizable-group rect.ll-resizable-handle, #imageEditor svg g.layer[data-orientation="w"] .resizable-group rect.ll-resizable-handle {
+  cursor: nwse-resize; }
+#imageEditor svg g.layer[data-orientation="e"] .resizable-group rect.lr-resizable-handle, #imageEditor svg g.layer[data-orientation="w"] .resizable-group rect.lr-resizable-handle {
+  cursor: nesw-resize; }
+#imageEditor svg g.layer[data-orientation="ne"] .resizable-group rect.ul-resizable-handle {
+  cursor: n-resize; }
+#imageEditor svg g.layer[data-orientation="ne"] .resizable-group rect.ur-resizable-handle {
+  cursor: e-resize; }
+#imageEditor svg g.layer[data-orientation="ne"] .resizable-group rect.ll-resizable-handle {
+  cursor: w-resize; }
+#imageEditor svg g.layer[data-orientation="ne"] .resizable-group rect.lr-resizable-handle {
+  cursor: s-resize; }
+#imageEditor svg g.layer[data-orientation="se"] .resizable-group rect.ul-resizable-handle {
+  cursor: e-resize; }
+#imageEditor svg g.layer[data-orientation="se"] .resizable-group rect.ur-resizable-handle {
+  cursor: s-resize; }
+#imageEditor svg g.layer[data-orientation="se"] .resizable-group rect.ll-resizable-handle {
+  cursor: n-resize; }
+#imageEditor svg g.layer[data-orientation="se"] .resizable-group rect.lr-resizable-handle {
+  cursor: w-resize; }
+#imageEditor svg g.layer[data-orientation="sw"] .resizable-group rect.ul-resizable-handle {
+  cursor: s-resize; }
+#imageEditor svg g.layer[data-orientation="sw"] .resizable-group rect.ur-resizable-handle {
+  cursor: w-resize; }
+#imageEditor svg g.layer[data-orientation="sw"] .resizable-group rect.ll-resizable-handle {
+  cursor: e-resize; }
+#imageEditor svg g.layer[data-orientation="sw"] .resizable-group rect.lr-resizable-handle {
+  cursor: n-resize; }
+#imageEditor svg g.layer[data-orientation="nw"] .resizable-group rect.ul-resizable-handle {
+  cursor: w-resize; }
+#imageEditor svg g.layer[data-orientation="nw"] .resizable-group rect.ur-resizable-handle {
+  cursor: n-resize; }
+#imageEditor svg g.layer[data-orientation="nw"] .resizable-group rect.ll-resizable-handle {
+  cursor: s-resize; }
+#imageEditor svg g.layer[data-orientation="nw"] .resizable-group rect.lr-resizable-handle {
+  cursor: e-resize; }
+#imageEditor .testing {
+  padding-top: 20px;
+  display: none; }
+  #imageEditor .testing .layersDump ul li {
+    margin-bottom: 10px;
+    border: 1px solid gray;
+    padding: 5px; }
+  #imageEditor .testing .layersDump ul li.active {
+    background: #85c17b; }
+  #imageEditor .testing .layersDump ul li button.delete-layer {
+    margin-top: -10px; }
+
+/*# sourceMappingURL=svgImageEditor.css.map */
