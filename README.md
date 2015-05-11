@@ -3,6 +3,8 @@
 Demo http://vladrub.github.io/SVG-image-editor/ Documentation and more examples coming soon.
 
 ## Usage
+Include files
+
 ```html
 <!-- Required styles -->
 <link href="css/svgImageEditor.css" rel="stylesheet" />
@@ -28,7 +30,11 @@ Demo http://vladrub.github.io/SVG-image-editor/ Documentation and more examples 
         </g>
     </g>
 </script>
+```
 
+basic usage
+
+```html
 <div id="imageEditor"></div>
 
 <script>
