@@ -49,6 +49,8 @@ $(document).ready(function(){
         screenHeight: 700
     });
     
+    imageEditorContainer.html( imageEditor.el );
+    
     // Add layer
     imageEditor.addLayer({
         'type': 'image',
