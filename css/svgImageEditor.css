@@ -6,55 +6,53 @@ SVG image editor global styles
   padding: 0 !important;
 }
 
-/* line 14, ../scss/svgImageEditor.scss */
+/* line 13, ../scss/svgImageEditor.scss */
 #imageEditor {
   -moz-user-select: -moz-none;
   -ms-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  width: 595px;
-  height: 530px;
   z-index: 5;
   position: absolute;
   top: 0;
 }
-/* line 25, ../scss/svgImageEditor.scss */
+/* line 22, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer .resizable-group,
 #imageEditor svg g.layer .rotatable-group,
 #imageEditor svg g.layer .flip-group,
 #imageEditor svg g.layer .remove-group {
   display: none;
 }
-/* line 30, ../scss/svgImageEditor.scss */
+/* line 27, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active {
   z-index: 999;
 }
-/* line 33, ../scss/svgImageEditor.scss */
+/* line 30, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .draggable-handle {
   opacity: 1;
   fill: #ffffff;
   stroke: #333333;
 }
-/* line 39, ../scss/svgImageEditor.scss */
+/* line 36, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .rotatable-group {
   display: block;
 }
-/* line 42, ../scss/svgImageEditor.scss */
+/* line 39, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .rotatable-group .rotatable-handle {
   cursor: alias;
 }
-/* line 45, ../scss/svgImageEditor.scss */
+/* line 42, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .rotatable-group .rotatable-handle path {
   fill: #ffffff;
   stroke: #333333;
   stroke-width: 70;
   stroke-miterlimit: 70;
 }
-/* line 54, ../scss/svgImageEditor.scss */
+/* line 51, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .resizable-group {
   display: block;
 }
-/* line 57, ../scss/svgImageEditor.scss */
+/* line 54, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .resizable-group line {
   stroke: #333333;
   stroke-width: 2;
@@ -63,173 +61,173 @@ SVG image editor global styles
   -webkit-transition: linear 0.2s;
   transition: linear 0.2s;
 }
-/* line 63, ../scss/svgImageEditor.scss */
+/* line 60, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .resizable-group rect {
   fill: transparent;
 }
-/* line 65, ../scss/svgImageEditor.scss */
+/* line 62, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .resizable-group g:hover line, #imageEditor svg g.layer.active .resizable-group g.active line {
   stroke: #959595;
 }
-/* line 70, ../scss/svgImageEditor.scss */
+/* line 67, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .flip-group {
   display: block;
 }
-/* line 73, ../scss/svgImageEditor.scss */
+/* line 70, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .flip-group .flip-handle {
   cursor: pointer;
 }
-/* line 76, ../scss/svgImageEditor.scss */
+/* line 73, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .flip-group .flip-handle path {
   fill: #ffffff;
   stroke: #333333;
   stroke-width: 70;
   stroke-miterlimit: 70;
 }
-/* line 85, ../scss/svgImageEditor.scss */
+/* line 82, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .remove-group {
   display: block;
 }
-/* line 88, ../scss/svgImageEditor.scss */
+/* line 85, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .remove-group .remove-handle {
   cursor: pointer;
 }
-/* line 91, ../scss/svgImageEditor.scss */
+/* line 88, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.active .remove-group .remove-handle path {
   fill: #ffffff;
   stroke: #333333;
   stroke-width: 70;
   stroke-miterlimit: 70;
 }
-/* line 101, ../scss/svgImageEditor.scss */
+/* line 98, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer image {
   -moz-transform: scale(1, 1);
   -ms-transform: scale(1, 1);
   -webkit-transform: scale(1, 1);
   transform: scale(1, 1);
 }
-/* line 109, ../scss/svgImageEditor.scss */
+/* line 106, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.vertical image, #imageEditor svg g.layer.vertical .image g {
   -moz-transform: scale(1, -1);
   -ms-transform: scale(1, -1);
   -webkit-transform: scale(1, -1);
   transform: scale(1, -1);
 }
-/* line 113, ../scss/svgImageEditor.scss */
+/* line 110, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.horizontal image, #imageEditor svg g.layer.horizontal .image g {
   -moz-transform: scale(-1, 1);
   -ms-transform: scale(-1, 1);
   -webkit-transform: scale(-1, 1);
   transform: scale(-1, 1);
 }
-/* line 117, ../scss/svgImageEditor.scss */
+/* line 114, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer.horizontal.vertical image, #imageEditor svg g.layer.horizontal.vertical .image g {
   -moz-transform: scale(-1, -1);
   -ms-transform: scale(-1, -1);
   -webkit-transform: scale(-1, -1);
   transform: scale(-1, -1);
 }
-/* line 121, ../scss/svgImageEditor.scss */
+/* line 118, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer .draggable-handle {
   opacity: 0;
 }
-/* line 127, ../scss/svgImageEditor.scss */
+/* line 124, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="n"] .resizable-group g.ul-resizable-handle, #imageEditor svg g.layer[data-orientation="s"] .resizable-group g.ul-resizable-handle {
   cursor: nwse-resize;
 }
-/* line 128, ../scss/svgImageEditor.scss */
+/* line 125, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="n"] .resizable-group g.ur-resizable-handle, #imageEditor svg g.layer[data-orientation="s"] .resizable-group g.ur-resizable-handle {
   cursor: nesw-resize;
 }
-/* line 129, ../scss/svgImageEditor.scss */
+/* line 126, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="n"] .resizable-group g.ll-resizable-handle, #imageEditor svg g.layer[data-orientation="s"] .resizable-group g.ll-resizable-handle {
   cursor: nesw-resize;
 }
-/* line 130, ../scss/svgImageEditor.scss */
+/* line 127, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="n"] .resizable-group g.lr-resizable-handle, #imageEditor svg g.layer[data-orientation="s"] .resizable-group g.lr-resizable-handle {
   cursor: nwse-resize;
 }
-/* line 135, ../scss/svgImageEditor.scss */
+/* line 132, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="e"] .resizable-group g.ul-resizable-handle, #imageEditor svg g.layer[data-orientation="w"] .resizable-group g.ul-resizable-handle {
   cursor: nesw-resize;
 }
-/* line 136, ../scss/svgImageEditor.scss */
+/* line 133, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="e"] .resizable-group g.ur-resizable-handle, #imageEditor svg g.layer[data-orientation="w"] .resizable-group g.ur-resizable-handle {
   cursor: nwse-resize;
 }
-/* line 137, ../scss/svgImageEditor.scss */
+/* line 134, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="e"] .resizable-group g.ll-resizable-handle, #imageEditor svg g.layer[data-orientation="w"] .resizable-group g.ll-resizable-handle {
   cursor: nwse-resize;
 }
-/* line 138, ../scss/svgImageEditor.scss */
+/* line 135, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="e"] .resizable-group g.lr-resizable-handle, #imageEditor svg g.layer[data-orientation="w"] .resizable-group g.lr-resizable-handle {
   cursor: nesw-resize;
 }
-/* line 143, ../scss/svgImageEditor.scss */
+/* line 140, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="ne"] .resizable-group g.ul-resizable-handle {
   cursor: n-resize;
 }
-/* line 144, ../scss/svgImageEditor.scss */
+/* line 141, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="ne"] .resizable-group g.ur-resizable-handle {
   cursor: e-resize;
 }
-/* line 145, ../scss/svgImageEditor.scss */
+/* line 142, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="ne"] .resizable-group g.ll-resizable-handle {
   cursor: w-resize;
 }
-/* line 146, ../scss/svgImageEditor.scss */
+/* line 143, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="ne"] .resizable-group g.lr-resizable-handle {
   cursor: s-resize;
 }
-/* line 150, ../scss/svgImageEditor.scss */
+/* line 147, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="se"] .resizable-group g.ul-resizable-handle {
   cursor: e-resize;
 }
-/* line 151, ../scss/svgImageEditor.scss */
+/* line 148, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="se"] .resizable-group g.ur-resizable-handle {
   cursor: s-resize;
 }
-/* line 152, ../scss/svgImageEditor.scss */
+/* line 149, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="se"] .resizable-group g.ll-resizable-handle {
   cursor: n-resize;
 }
-/* line 153, ../scss/svgImageEditor.scss */
+/* line 150, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="se"] .resizable-group g.lr-resizable-handle {
   cursor: w-resize;
 }
-/* line 157, ../scss/svgImageEditor.scss */
+/* line 154, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="sw"] .resizable-group g.ul-resizable-handle {
   cursor: s-resize;
 }
-/* line 158, ../scss/svgImageEditor.scss */
+/* line 155, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="sw"] .resizable-group g.ur-resizable-handle {
   cursor: w-resize;
 }
-/* line 159, ../scss/svgImageEditor.scss */
+/* line 156, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="sw"] .resizable-group g.ll-resizable-handle {
   cursor: e-resize;
 }
-/* line 160, ../scss/svgImageEditor.scss */
+/* line 157, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="sw"] .resizable-group g.lr-resizable-handle {
   cursor: n-resize;
 }
-/* line 164, ../scss/svgImageEditor.scss */
+/* line 161, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="nw"] .resizable-group g.ul-resizable-handle {
   cursor: w-resize;
 }
-/* line 165, ../scss/svgImageEditor.scss */
+/* line 162, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="nw"] .resizable-group g.ur-resizable-handle {
   cursor: n-resize;
 }
-/* line 166, ../scss/svgImageEditor.scss */
+/* line 163, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="nw"] .resizable-group g.ll-resizable-handle {
   cursor: s-resize;
 }
-/* line 167, ../scss/svgImageEditor.scss */
+/* line 164, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer[data-orientation="nw"] .resizable-group g.lr-resizable-handle {
   cursor: e-resize;
 }
-/* line 172, ../scss/svgImageEditor.scss */
+/* line 169, ../scss/svgImageEditor.scss */
 #imageEditor svg g.layer .image-editor-text .image-editor-text-container {
   display: table-cell;
   vertical-align: middle;
@@ -240,22 +238,22 @@ SVG image editor global styles
   padding: 0;
   line-height: inherit;
 }
-/* line 186, ../scss/svgImageEditor.scss */
+/* line 183, ../scss/svgImageEditor.scss */
 #imageEditor .testing {
   padding-top: 20px;
   display: none;
 }
-/* line 190, ../scss/svgImageEditor.scss */
+/* line 187, ../scss/svgImageEditor.scss */
 #imageEditor .testing .layersDump ul li {
   margin-bottom: 10px;
   border: 1px solid gray;
   padding: 5px;
 }
-/* line 196, ../scss/svgImageEditor.scss */
+/* line 193, ../scss/svgImageEditor.scss */
 #imageEditor .testing .layersDump ul li.active {
   background: #85c17b;
 }
-/* line 200, ../scss/svgImageEditor.scss */
+/* line 197, ../scss/svgImageEditor.scss */
 #imageEditor .testing .layersDump ul li button.delete-layer {
   margin-top: -10px;
 }

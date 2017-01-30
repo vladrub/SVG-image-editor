@@ -8,13 +8,10 @@ SVG image editor global styles
 }
 
 #phantomSize2 {
-
 }
 
 #imageEditor {
   @include user-select(none);
-  width: 595px;
-  height: 530px;
   z-index: 5;
   position: absolute;
   top: 0;
