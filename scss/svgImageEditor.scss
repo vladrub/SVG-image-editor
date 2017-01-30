@@ -1,3 +1,5 @@
+@import 'compass';
+
 /************************************************************************************
 SVG image editor global styles
 *************************************************************************************/
@@ -5,35 +7,115 @@ SVG image editor global styles
   padding: 0 !important;
 }
 
+#phantomSize2 {
+
+}
+
 #imageEditor {
+  @include user-select(none);
+  width: 595px;
+  height: 530px;
+  z-index: 5;
+  position: absolute;
+  top: 0;
+
   svg  {
     g.layer{
 
       .resizable-group,
-      .rotatable-group {
-        display: none;
-      }
+      .rotatable-group,
+      .flip-group,
+      .remove-group { display: none; }
 
       &.active {
         z-index: 999;
-        .draggable-handle { opacity: 1; }
+
+        .draggable-handle {
+          opacity: 1;
+          fill: #ffffff;
+          stroke: #333333;
+        }
 
         .rotatable-group {
           display: block;
 
           .rotatable-handle {
             cursor: alias;
+
+            path {
+              fill: #ffffff;
+              stroke: #333333;
+              stroke-width: 70;
+              stroke-miterlimit: 70;
+            }
           }
         }
 
         .resizable-group {
           display: block;
+
+          line {
+            stroke: #333333;
+            stroke-width: 2;
+            @include transition(linear 0.2s);
+          }
+
+          rect { fill: transparent; }
+
+          g:hover line, g.active line {
+            stroke: #959595;
+          }
         }
 
-        circle, rect, line {
-          fill: #ffffff;
-          stroke: #333333;
+        .flip-group {
+          display: block;
+
+          .flip-handle {
+            cursor: pointer;
+
+            path {
+              fill: #ffffff;
+              stroke: #333333;
+              stroke-width: 70;
+              stroke-miterlimit: 70;
+            }
+          }
         }
+
+        .remove-group {
+          display: block;
+
+          .remove-handle {
+            cursor: pointer;
+
+            path {
+              fill: #ffffff;
+              stroke: #333333;
+              stroke-width: 70;
+              stroke-miterlimit: 70;
+            }
+          }
+        }
+      }
+
+      image {
+        @include transform(scale(1, 1));
+      }
+
+      .image g {
+        //@include transform-origin(center);
+      }
+
+      &.vertical image, &.vertical .image g {
+        @include transform(scale(1, -1));
+      }
+
+      &.horizontal image, &.horizontal .image g {
+        @include transform(scale(-1, 1));
+      }
+
+      &.horizontal.vertical image, &.horizontal.vertical .image g {
+        @include transform(scale(-1, -1));
       }
 
       .draggable-handle {
@@ -42,50 +124,63 @@ SVG image editor global styles
 
       &[data-orientation="n"] .resizable-group,
       &[data-orientation="s"] .resizable-group {
-        rect.ul-resizable-handle { cursor: nwse-resize; }
-        rect.ur-resizable-handle { cursor: nesw-resize; }
-        rect.ll-resizable-handle { cursor: nesw-resize; }
-        rect.lr-resizable-handle { cursor: nwse-resize; }
+        g.ul-resizable-handle { cursor: nwse-resize; }
+        g.ur-resizable-handle { cursor: nesw-resize; }
+        g.ll-resizable-handle { cursor: nesw-resize; }
+        g.lr-resizable-handle { cursor: nwse-resize; }
       }
 
       &[data-orientation="e"] .resizable-group,
       &[data-orientation="w"] .resizable-group {
-        rect.ul-resizable-handle { cursor: nesw-resize; }
-        rect.ur-resizable-handle { cursor: nwse-resize; }
-        rect.ll-resizable-handle { cursor: nwse-resize; }
-        rect.lr-resizable-handle { cursor: nesw-resize; }
+        g.ul-resizable-handle { cursor: nesw-resize; }
+        g.ur-resizable-handle { cursor: nwse-resize; }
+        g.ll-resizable-handle { cursor: nwse-resize; }
+        g.lr-resizable-handle { cursor: nesw-resize; }
       }
 
 
       &[data-orientation="ne"] .resizable-group {
-        rect.ul-resizable-handle { cursor: n-resize; }
-        rect.ur-resizable-handle { cursor: e-resize; }
-        rect.ll-resizable-handle { cursor: w-resize; }
-        rect.lr-resizable-handle { cursor: s-resize; }
+        g.ul-resizable-handle { cursor: n-resize; }
+        g.ur-resizable-handle { cursor: e-resize; }
+        g.ll-resizable-handle { cursor: w-resize; }
+        g.lr-resizable-handle { cursor: s-resize; }
       }
 
       &[data-orientation="se"] .resizable-group {
-        rect.ul-resizable-handle { cursor: e-resize; }
-        rect.ur-resizable-handle { cursor: s-resize; }
-        rect.ll-resizable-handle { cursor: n-resize; }
-        rect.lr-resizable-handle { cursor: w-resize; }
+        g.ul-resizable-handle { cursor: e-resize; }
+        g.ur-resizable-handle { cursor: s-resize; }
+        g.ll-resizable-handle { cursor: n-resize; }
+        g.lr-resizable-handle { cursor: w-resize; }
       }
 
       &[data-orientation="sw"] .resizable-group {
-        rect.ul-resizable-handle { cursor: s-resize; }
-        rect.ur-resizable-handle { cursor: w-resize; }
-        rect.ll-resizable-handle { cursor: e-resize; }
-        rect.lr-resizable-handle { cursor: n-resize; }
+        g.ul-resizable-handle { cursor: s-resize; }
+        g.ur-resizable-handle { cursor: w-resize; }
+        g.ll-resizable-handle { cursor: e-resize; }
+        g.lr-resizable-handle { cursor: n-resize; }
       }
 
       &[data-orientation="nw"] .resizable-group {
-        rect.ul-resizable-handle { cursor: w-resize; }
-        rect.ur-resizable-handle { cursor: n-resize; }
-        rect.ll-resizable-handle { cursor: s-resize; }
-        rect.lr-resizable-handle { cursor: e-resize; }
+        g.ul-resizable-handle { cursor: w-resize; }
+        g.ur-resizable-handle { cursor: n-resize; }
+        g.ll-resizable-handle { cursor: s-resize; }
+        g.lr-resizable-handle { cursor: e-resize; }
+      }
+
+      // live edit
+      .image-editor-text {
+        .image-editor-text-container {
+          display: table-cell;
+          vertical-align: middle;
+          background: transparent;
+          border: none;
+          box-sizing: border-box;
+          white-space: pre-line;
+          padding: 0;
+          line-height: inherit;
+        }
       }
     }
-
   }
 
   .testing {

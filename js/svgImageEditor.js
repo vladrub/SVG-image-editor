@@ -5,6 +5,36 @@ var ImageEditor = {
     Helpers: {}
 };
 
+/**
+ * detect IE
+ * returns version of IE or false, if browser is not Internet Explorer
+ */
+function detectIE() {
+    var ua = window.navigator.userAgent;
+
+    var msie = ua.indexOf('MSIE ');
+    if (msie > 0) {
+        // IE 10 or older => return version number
+        return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+    }
+
+    var trident = ua.indexOf('Trident/');
+    if (trident > 0) {
+        // IE 11 => return version number
+        var rv = ua.indexOf('rv:');
+        return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+    }
+
+    var edge = ua.indexOf('Edge/');
+    if (edge > 0) {
+        // IE 12 (aka Edge) => return version number
+        return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+    }
+
+    // other browser
+    return false;
+}
+
 $(function () {
 
     ImageEditor.Helpers.templateHelper = function(id) {
@@ -77,6 +107,98 @@ $(function () {
         return {width: phantom.width(), height: phantom.height()};
     };
 
+    ImageEditor.Helpers.getSize2 = function(str, fontSize, font, width, height, lineHeight, extraClass, textAlign) {
+
+        if ( str == '' ) return {$el: $(), fontSize: fontSize};
+
+        // оборачиваем все символы в span для IE
+        function wrap(str) {
+            var result = '';
+            _.each(str, function(char){
+                result = result + '<span class="letter">' + char + '</span>';
+            });
+            return result;
+        }
+
+        str = wrap( str );
+
+        // Создаем фейковый контейнер
+        var phantom = $("span#phantomSize2");
+
+        if ( ! phantom.length ) {
+            phantom = $('<span id="phantomSize2">' + str + '</span>').appendTo( document.body );
+        } else {
+            phantom.html(str);
+        }
+
+        // Добавляем дополнительные классы для отступов
+        phantom.removeAttr('class').addClass(extraClass);
+
+        // Прописываем стили
+        phantom.css({
+            'vsibility':'hidden',
+            //'position':'relative',
+            'position':'absolute',
+            'left':'-9999px', 'top':'-9999px',
+
+            'width': width + 'px',
+            'min-height': height + 'px',
+
+            'display': 'inline-block',
+            'box-sizing': 'border-box',
+            'line-height': lineHeight,
+            'white-space': 'pre-line',
+            'font-size': fontSize, 'fontFamily': font, 'text-align': textAlign
+        });
+
+        // Определяем строки
+        var line = 0;
+        var top = 999;
+        $('span.letter', phantom).each(function(){
+            if ( top != $(this).position().top ) {
+                line++;
+                top = $(this).position().top;
+
+                $(this).wrap('<span class="lines line-' + line + '"></span>');
+            } else {
+                $(this).appendTo( 'span.lines.line-' + line, phantom );
+            }
+        });
+
+        // Определяем базовую строку
+        var baseLineWidth = 0;
+        $('span.lines', phantom).each(function(){
+            if ( $(this).width() > baseLineWidth ) {
+                baseLineWidth = $(this).width();
+                $(this).addClass('base-line').siblings('span.lines').removeClass('base-line');
+            }
+        });
+
+        while( Number(phantom.css('height').replace('px','')) > height ) {
+            fontSize = (Number(fontSize.replace('px','')) - 0.5) + 'px';
+
+            phantom.css({
+                'font-size': fontSize
+            });
+        }
+
+        while( Number($('.base-line', phantom).css('width').replace('px','')) > phantom.width() ) {
+            fontSize = (Number(fontSize.replace('px','')) - 0.5) + 'px';
+
+            phantom.css({
+                'font-size': fontSize
+            });
+        }
+
+        phantom.css({
+            'display': 'table-cell',
+            'vertical-align': 'middle',
+            'height': this.initHeight + 'px'
+        });
+
+        return {$el: phantom, fontSize: fontSize};
+    };
+
     /*
      * .addClassSVG(className)
      * Adds the specified class(es) to each of the set of matched SVG elements.
@@ -124,7 +246,8 @@ $(function () {
         defaults: {
             screenWidth: 500,
             screenHeight: 500,
-            draggingOutside: true
+            draggingOutside: true,
+            background: false
         }
     });
 
@@ -143,9 +266,12 @@ $(function () {
             scale: 1,
             active: false,
 
-            rotationHandleRadius: 8,
+            flipVertical: false,
+            flipHorizontal: false,
+
             strokeSize: 4,
-            rotationHandleYOffset: -33,
+            rotationHandleXOffset: -10,
+            rotationHandleYOffset: -30,
             minDimension: 20,
             handleSize: 15,
             halfHandleSize: 0
@@ -188,6 +314,7 @@ $(function () {
     ImageEditor.Models.ImageLayer = ImageEditor.Models.Layer.extend({
         defaults: _.extend({}, ImageEditor.Models.Layer.prototype.defaults, {
             type: "image",
+            imgType: "image",
             src: ""
         })
     });
@@ -204,6 +331,25 @@ $(function () {
         })
     });
 
+    ImageEditor.Models.ImageTextLayer = ImageEditor.Models.Layer.extend({
+        defaults: _.extend({}, ImageEditor.Models.Layer.prototype.defaults, {
+            type: "imageText",
+            imgType: "image",
+            src: "",
+            text: "",
+            textWidth: 0,
+            textHeight: 0,
+            textFont: "Arial",
+            textFontSize: 16,
+            lineHeight: 1.2,
+            textColor: "#000000",
+            svgColor: '#ffffff',
+            extraClass: '',
+            textAlign: 'center',
+            layerId: false
+        })
+    });
+
     /************************************************************************************
      COLLECTIONS
      *************************************************************************************/
@@ -216,8 +362,9 @@ $(function () {
         changeActiveLayerStatus: function (model, options) {
             if ( options == true ) {
                 this.forEach(function(mod, index) {
-                    if(model != mod)
+                    if(model != mod) {
                         mod.set('active', false);
+                    }
                 });
             }
         }
@@ -237,10 +384,12 @@ $(function () {
         initialize: function (options) {
             this.model = new ImageEditor.Models.ImageEditor();
 
-            this.model.on("change:screenWidth change:screenHeight", this.resizeScreen, this);
+            this.model.on('change:screenWidth change:screenHeight', this.resizeScreen, this);
+            this.model.on('change:background', this.changeBackground, this);
 
             this.model.set('screenWidth', options.screenWidth);
             this.model.set('screenHeight', options.screenHeight);
+            this.model.set('background', options.background);
             this.screenOffsetLeft = options.screenOffsetLeft;
             this.screenOffsetTop = options.screenOffsetTop;
 
@@ -250,11 +399,18 @@ $(function () {
             $(document).bind('keydown', this.bindKeyboardEvents);
 
             this.render();
+            this.changeBackground();
         },
 
         render: function () {
             this.collection.each(this.renderLayer, this);
             return this;
+        },
+
+        changeBackground: function () {
+            if ( this.model.get('background') ) {
+                $('#imageEditorBackground').removeAttr('class').addClass('background ' + this.model.get('background'));
+            }
         },
 
         resizeScreen: function() {
@@ -264,6 +420,7 @@ $(function () {
 
         clearScreen: function () {
             this.collection.remove( this.collection.models );
+            this.model.set('background', ' ');
         },
 
         renderLayer: function (model) {
@@ -290,8 +447,10 @@ $(function () {
 
             if ( options.type == 'text' ) {
                 newLayer = new ImageEditor.Models.TextLayer(options);
-            } else {
+            } else if ( options.type == 'image' ) {
                 newLayer = new ImageEditor.Models.ImageLayer(options);
+            } else if ( options.type == 'imageText' ) {
+                newLayer = new ImageEditor.Models.ImageTextLayer(options);
             }
 
             if (newLayer) this.collection.add( newLayer );
@@ -308,6 +467,8 @@ $(function () {
         },
 
         bindKeyboardEvents: function(e) {
+            if ( $(e.target).prop("tagName") == 'TEXTAREA' ) return;
+
             var layer = this.collection.find(function(model) {
                 if ( model.get('active') == true ) return model;
             });
@@ -339,6 +500,11 @@ $(function () {
                 e.preventDefault();
                 this.collection.remove( layer );
             }
+            // backspace
+            else if ( e.keyCode == 8 ) {
+                e.preventDefault();
+                this.collection.remove( layer );
+            }
         }
     });
 
@@ -354,6 +520,8 @@ $(function () {
             this.screenWidth = options.screenWidth;
             this.screenHeight = options.screenHeight;
             this.draggingOutside = options.draggingOutside;
+            this.initWidth = this.model.get('width');
+            this.initHeight = this.model.get('height');
 
             _.bindAll(this, "rotatableStart", "resizableStart", "draggableStart", "onMoveEvent", "onEndEvent", "onAnimationFrame", "onSizeChange");
 
@@ -363,6 +531,8 @@ $(function () {
             this.model.on("change:width change:height", this.onSizeChange, this);
             this.model.on("destroy remove", this.remove, this);
             this.model.on("change:active", this.setActiveClass, this);
+            this.model.on("change:flipHorizontal", this.flipImage, this);
+            this.model.on("change:flipVertical", this.flipImage, this);
 
             if ( this.model.get('x') == 'center' && this.model.get('y') == 'center' ) {
                 this.model.set({
@@ -372,10 +542,25 @@ $(function () {
             }
 
             if ( this.model.get("type") == "image" ) {
+                this.model.on("change:src", this.onImageSrcChange, this);
                 this.model.on("change:width change:height change:src", this.onImageChange, this);
-            } else {
+            } else if ( this.model.get("type") == "text" ) {
                 this.model.on("change:width change:height", this.onTextSizeChange, this);
                 this.model.on("change:textFont change:textFontSize change:textColor", this.onTextStyleChange, this);
+            } else if ( this.model.get("type") == "imageText" ) {
+                this.model.on("change:width change:height change:src", this.onImageChange, this);
+                this.model.on("change:width change:height", this.onImageTextSizeChange, this);
+
+                if ( detectIE() ) {
+                    this.model.on("change:textFont change:textFontSize change:textColor change:textAlign change:flipVertical change:flipHorizontal", this.onImageTextChange, this);
+                } else {
+                    this.model.on("change:textFont change:textFontSize change:textColor change:textAlign change:flipVertical change:flipHorizontal", this.onImageTextStyleChange, this);
+                }
+
+                this.model.on("change:lineHeight", this.onLineHeightChange, this);
+
+                this.model.on("change:svgColor", this.onSvgColorChange, this);
+                this.model.on("change:text", this.onImageTextChange, this);
             }
 
             this.$el.attr("data-layer-id", this.model.get("id"));
@@ -390,6 +575,38 @@ $(function () {
 
         resize: function(width, height) {
             this.model.set({"width": width, "height": height});
+        },
+
+        flipImage: function(){
+            if ( this.model.get('imgType') == 'svg' ) {
+                $('.image g', this.$el).attr('transform', '');
+                this.$el.find("foreignObject.image-editor-text").removeClassSVG('horizontal vertical');
+
+                if ( this.model.get('flipHorizontal') && ! this.model.get('flipVertical') ) {
+                    this.$el.find("foreignObject.image-editor-text").addClassSVG('horizontal');
+                    $('.image g', this.$el).attr('transform', 'scale(-1 1) ' + $('.image g', this.$el).attr('data-translate-x'));
+                } else if ( ! this.model.get('flipHorizontal') && this.model.get('flipVertical') ) {
+                    this.$el.find("foreignObject.image-editor-text").addClassSVG('vertical');
+                    $('.image g', this.$el).attr('transform', 'scale(1 -1) ' + $('.image g', this.$el).attr('data-translate-y'));
+                } else if ( this.model.get('flipHorizontal') && this.model.get('flipVertical') ) {
+                    this.$el.find("foreignObject.image-editor-text").addClassSVG('horizontal vertical');
+                    $('.image g', this.$el).attr('transform', 'scale(-1 -1) ' + $('.image g', this.$el).attr('data-translate-xy'));
+                }
+            } else {
+                $('image', this.$el).attr('transform', '');
+                this.$el.removeClassSVG('vertical horizontal');
+
+                if ( this.model.get('flipHorizontal') && ! this.model.get('flipVertical') ) {
+                    this.$el.addClassSVG('horizontal');
+                    $('image', this.$el).attr('transform', 'scale(-1, 1) ');
+                } else if ( ! this.model.get('flipHorizontal') && this.model.get('flipVertical') ) {
+                    this.$el.addClassSVG('vertical');
+                    $('image', this.$el).attr('transform', 'scale(1, -1) ');
+                } else if ( this.model.get('flipHorizontal') && this.model.get('flipVertical') ) {
+                    this.$el.addClassSVG('horizontal vertical');
+                    $('image', this.$el).attr('transform', 'scale(-1, -1) ');
+                }
+            }
         },
 
         onTransformChange: function() {
@@ -409,23 +626,120 @@ $(function () {
             });
         },
 
+        onImageTextSizeChange: function() {
+            if ( detectIE() ) {
+                var text = this.$el.find(".ie-image-editor-text-container");
+
+                text.attr({
+                    "fill": this.model.get("textColor")
+                });
+            } else {
+                var text = this.$el.find("foreignObject");
+
+                var w = Math.min(  this.model.get("width") / text.attr('width') );
+                var h = Math.min(  this.model.get("height") / text.attr('height') );
+                var scale = (w || h);
+
+                text.attr({
+                    "fill": this.model.get("textColor"),
+                    "transform": "scale(" + scale + ")"
+                });
+            }
+        },
+
+        renderText: function($el) {
+            var result = $();
+
+            $el.find('span.letter').each(function(){
+                var node = ImageEditor.Helpers.createSvgElement('text');
+                node.textContent = $(this).text();
+
+                node.setAttributeNS(null, 'x', $(this).position().left);
+                node.setAttributeNS(null, 'y', $(this).position().top  + ($(this).height() *80/100));
+
+                result.push.apply(result, $(node));
+            });
+
+            return result;
+        },
+
+        onImageTextChange: function() {
+            var params = this.onImageTextStyleChange();
+
+            if ( detectIE() ) {
+                this.$el.find('.ie-image-editor-text-container').html( this.renderText(params.$el) );
+            } else {
+                this.$el.find('.image-editor-text-container').html( this.model.get('text') );
+            }
+        },
+
         onTextStyleChange: function() {
-            this.$el.find("text").css({
+            this.$el.find("text, foreignObject.image-editor-text").css({
                 'font-family': this.model.get('textFont'),
                 'font-size': this.model.get('textFontSize'),
                 'color': this.model.get('textColor')
             });
         },
 
+        onSvgColorChange: function() {
+            this.$el.find('svg.image path').css({
+                fill: this.model.get('svgColor')
+            });
+        },
+
+        onImageTextStyleChange: function() {
+            var extra = '';
+
+            if ( this.model.get('flipVertical') ) {
+                extra += ' vertical';
+            }
+
+            if ( this.model.get('flipHorizontal') ) {
+                extra += ' horizontal';
+            }
+
+            var params = ImageEditor.Helpers.getSize2(
+                this.model.get('text'),
+                this.model.get('textFontSize'),
+                this.model.get('textFont'),
+                this.initWidth,
+                this.initHeight,
+                this.model.get('lineHeight'),
+                this.model.get('extraClass') + extra,
+                this.model.get('textAlign')
+            );
+
+            this.$el.find(".ie-image-editor-text-container, foreignObject.image-editor-text").css({
+                'font-family': this.model.get('textFont'),
+                'font-size': params.fontSize,
+                'line-height': this.model.get('lineHeight'),
+                'color': this.model.get('textColor'),
+                'text-align': this.model.get('textAlign')
+            });
+
+            this.$el.find('.ie-image-editor-text-container').attr('fill', this.model.get('textColor'));
+
+            return params;
+        },
+
+        onLineHeightChange: function() {
+
+        },
+
         onImageChange: function() {
-            this.$el.find("image").attr({
+            this.$el.find("image, .image, .ie-image-editor-text-container").attr({
                 "x": -this.model.get("halfWidth"), "y": -this.model.get("halfHeight"),
                 "height": this.model.get("height"), "width": this.model.get("width")
             });
         },
 
+        onImageSrcChange: function () {
+            this.$el.find("image").attr({
+                "href": this.model.get("src")
+            });
+        },
+
         onSizeChange: function() {
-            //if ( typeof this.draggableHandle == "undefined") return;
             this.draggableHandle.attr({
                 "x": -this.model.get("halfWidth"),
                 "y": -this.model.get("halfHeight"),
@@ -434,27 +748,31 @@ $(function () {
             });
 
             this.ulResizableHandle.attr({
-                x: -this.model.get("halfWidth") - this.model.get("halfHandleSize"),
-                y: -this.model.get("halfHeight") - this.model.get("halfHandleSize")
+                transform:"translate(" + (-this.model.get("halfWidth") - this.model.get("halfHandleSize")) + ", " + (-this.model.get("halfHeight") - this.model.get("halfHandleSize")) + ")"
             });
 
             this.urResizableHandle.attr({
-                x: this.model.get("halfWidth") - this.model.get("halfHandleSize"),
-                y: -this.model.get("halfHeight") - this.model.get("halfHandleSize")
+                transform:"translate(" + (this.model.get("halfWidth") - this.model.get("halfHandleSize")) + ", " + (-this.model.get("halfHeight") - this.model.get("halfHandleSize")) + ")"
             });
 
             this.llResizableHandle.attr({
-                x: -this.model.get("halfWidth") - this.model.get("halfHandleSize"),
-                y: this.model.get("halfHeight") - this.model.get("halfHandleSize")
+                transform:"translate(" + (-this.model.get("halfWidth") - this.model.get("halfHandleSize")) + ", " + (this.model.get("halfHeight") - this.model.get("halfHandleSize")) + ")"
             });
 
             this.lrResizableHandle.attr({
-                x: this.model.get("halfWidth") - this.model.get("halfHandleSize"),
-                y: this.model.get("halfHeight") - this.model.get("halfHandleSize")
+                transform:"translate(" + (this.model.get("halfWidth") - this.model.get("halfHandleSize")) + ", " + (this.model.get("halfHeight") - this.model.get("halfHandleSize")) + ")"
             });
 
             this.rotatableGroup.attr({
                 transform:"translate(0, " + -this.model.get("halfHeight") + ")"
+            });
+
+            this.flipGroup.attr({
+                transform:"translate(" + this.model.get("halfWidth") + ", " + (-this.model.get("halfHeight") + 20) + ")",
+            });
+
+            this.removeGroup.attr({
+                transform:"translate(" + this.model.get("halfWidth") + ", " + (-this.model.get("halfHeight") - 30) + ")",
             });
         },
 
@@ -659,6 +977,79 @@ $(function () {
             this.setActiveStatus();
         },
 
+        createImageTextLayer: function() {
+            var them = this;
+
+            if ( this.model.get('imgType') == 'svg' ) {
+                jQuery.get(this.model.get("src"), function(data) {
+                    var $svg = jQuery(data).find('svg');
+                    $svg[0].setAttributeNS(null, "class", "image");
+                    them.$el.prepend( $svg );
+
+                    them.onImageChange();
+                    them.onSvgColorChange();
+                }, 'xml');
+            } else {
+                var image = ImageEditor.Helpers.createSvgElement("image");
+                image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', this.model.get("src"));
+                image.setAttributeNS(null, "preserveAspectRatio", "none");
+
+                this.$el.prepend( image );
+            }
+
+            this.onImageChange();
+
+            if ( detectIE() ) {
+                var text = ImageEditor.Helpers.createSvgElement('svg');
+
+                text.setAttributeNS(null, "class", "ie-image-editor-text-container");
+
+                text.setAttributeNS(null, "viewBox", '0 0 ' + this.model.get("width") + ' ' + this.model.get("height"));
+                text.setAttributeNS(null, "preserveAspectRatio", 'xMinYMin slice');
+                text.setAttributeNS(null, "height", this.model.get("height"));
+                text.setAttributeNS(null, "width", this.model.get("width"));
+                text.setAttributeNS(null, "x", '-' + this.model.get("halfWidth"));
+                text.setAttributeNS(null, "y", '-' + this.model.get("halfHeight"));
+
+                this.$el.prepend( text );
+
+                this.onImageTextChange();
+                this.onImageTextStyleChange();
+                this.onImageTextSizeChange();
+            } else {
+                var text = ImageEditor.Helpers.createSvgElement('foreignObject');
+                text.setAttributeNS(null, "class", "image-editor-text " + this.model.get('extraClass'));
+                text.setAttributeNS(null, "height", this.model.get("height"));
+                text.setAttributeNS(null, "width", this.model.get("width"));
+                text.setAttributeNS(null, "x", '-' + this.model.get("halfWidth"));
+                text.setAttributeNS(null, "y", '-' + this.model.get("halfHeight"));
+                $(text).html('<div class="image-editor-text-container" style="width: ' + this.model.get("width") + 'px; height: ' + this.model.get("height") + 'px">' + this.model.get('text') + '</div>');
+
+                $('.draggable-handle', this.$el).before( text );
+
+                this.onImageTextStyleChange();
+                this.onImageTextSizeChange();
+            }
+
+            this.setActiveStatus();
+        },
+
+        flipImageVerticalEvent: function() {
+            if ( this.model.get('flipVertical') ) {
+                this.model.set('flipVertical', false);
+            } else {
+                this.model.set('flipVertical', true);
+            }
+        },
+
+        flipImageHorizontalEvent: function() {
+            if ( this.model.get('flipHorizontal') ) {
+                this.model.set('flipHorizontal', false);
+            } else {
+                this.model.set('flipHorizontal', true);
+            }
+        },
+
         setActiveClass: function() {
             if ( this.model.get("active") )
                 this.$el.addClassSVG("active");
@@ -674,6 +1065,7 @@ $(function () {
         },
 
         remove: function() {
+            this.model.set('active', false);
             this.model.destroy();
             this.$el.remove();
         },
@@ -688,6 +1080,10 @@ $(function () {
             $(this.lrResizableHandle).bind("mousedown", this.resizableStart);
 
             $(this.rotatableHandle).bind("mousedown", this.rotatableStart);
+
+            $(this.flipVertical).on("click", this.flipImageVerticalEvent.bind(this));
+            $(this.flipHorizontal).on("click", this.flipImageHorizontalEvent.bind(this));
+            $(this.removeHandle).on("click", this.remove.bind(this));
         },
 
         render: function () {
@@ -700,7 +1096,8 @@ $(function () {
             }
 
             if ( this.model.get("type") == "image" ) this.createImageLayer();
-            else this.createTextLayer();
+            else if ( this.model.get("type") == "text" ) this.createTextLayer();
+            else if ( this.model.get("type") == "imageText" ) this.createImageTextLayer();
 
             this.draggableHandle = this.$el.find("[class~='draggable-handle']");
 
@@ -710,9 +1107,16 @@ $(function () {
             this.lrResizableHandle = this.$el.find("[class~='lr-resizable-handle']");
 
             this.rotatableGroup = this.$el.find("[class~='rotatable-group']");
+            this.flipGroup = this.$el.find("[class~='flip-group']");
+            this.removeGroup = this.$el.find("[class~='remove-group']");
             this.rotatableHandle = this.$el.find("[class~='rotatable-handle']");
 
+            this.flipVertical = this.$el.find("[class~='flip-vertical']");
+            this.flipHorizontal = this.$el.find("[class~='flip-horizontal']");
+            this.removeHandle = this.$el.find("[class~='remove-handle']");
+
             //this.model.set({"height": 60});
+            this.flipImage();
             this.bindEvents();
             this.onSizeChange();
             this.onTransformChange();
