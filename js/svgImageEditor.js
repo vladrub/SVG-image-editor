@@ -797,8 +797,8 @@ $(function () {
             this.calculateScreenCenterPoint();
             this.rotatableHandlerDrag = true;
 
-            this.documentEl.bind("mousemove", this.onMoveEvent);
-            this.documentEl.bind("mouseup", this.onEndEvent);
+            this.documentEl.bind("mousemove vmousemove", this.onMoveEvent);
+            this.documentEl.bind("mouseup vmouseup", this.onEndEvent);
         },
 
         resizableStart: function(e) {
@@ -807,8 +807,8 @@ $(function () {
             this.calculateScreenCenterPoint();
             this.resizableHandlerDrag = true;
 
-            this.documentEl.bind("mousemove", this.onMoveEvent);
-            this.documentEl.bind("mouseup", this.onEndEvent);
+            this.documentEl.bind("mousemove vmousemove", this.onMoveEvent);
+            this.documentEl.bind("mouseup vmouseup", this.onEndEvent);
         },
 
         draggableStart: function(e) {
@@ -822,8 +822,8 @@ $(function () {
             this.startMouseX = e.pageX;
             this.startMouseY = e.pageY;
 
-            this.documentEl.bind("mousemove", this.onMoveEvent);
-            this.documentEl.bind("mouseup", this.onEndEvent);
+            this.documentEl.bind("mousemove vmousemove", this.onMoveEvent);
+            this.documentEl.bind("mouseup vmouseup", this.onEndEvent);
         },
 
         onMoveEvent: function(e) {
@@ -934,8 +934,8 @@ $(function () {
             this.rotatableHandlerDrag = false;
             this.resizableHandlerDrag = false;
             this.draggableHandlerDrag = false;
-            this.documentEl.unbind("mousemove", this.onMoveEvent);
-            this.documentEl.unbind("mouseup", this.onEndEvent);
+            this.documentEl.unbind("mousemove vmousemove", this.onMoveEvent);
+            this.documentEl.unbind("mouseup vmousemove", this.onEndEvent);
         },
 
         onAnimationFrame: function() {
@@ -1071,19 +1071,19 @@ $(function () {
         },
 
         bindEvents: function() {
-            $(this.draggableHandle).bind("mousedown", this.draggableStart);
-            $(this.draggableHandle).on("mousedown", this.setActiveStatus.bind(this));
+            $(this.draggableHandle).bind("mousedown vmousedown", this.draggableStart);
+            $(this.draggableHandle).on("mousedown vmousedown", this.setActiveStatus.bind(this));
 
-            $(this.ulResizableHandle).bind("mousedown", this.resizableStart);
-            $(this.urResizableHandle).bind("mousedown", this.resizableStart);
-            $(this.llResizableHandle).bind("mousedown", this.resizableStart);
-            $(this.lrResizableHandle).bind("mousedown", this.resizableStart);
+            $(this.ulResizableHandle).bind("mousedown vmousedown", this.resizableStart);
+            $(this.urResizableHandle).bind("mousedown vmousedown", this.resizableStart);
+            $(this.llResizableHandle).bind("mousedown vmousedown", this.resizableStart);
+            $(this.lrResizableHandle).bind("mousedown vmousedown", this.resizableStart);
 
-            $(this.rotatableHandle).bind("mousedown", this.rotatableStart);
+            $(this.rotatableHandle).bind("mousedown vmousedown", this.rotatableStart);
 
-            $(this.flipVertical).on("click", this.flipImageVerticalEvent.bind(this));
-            $(this.flipHorizontal).on("click", this.flipImageHorizontalEvent.bind(this));
-            $(this.removeHandle).on("click", this.remove.bind(this));
+            $(this.flipVertical).on("click vclick", this.flipImageVerticalEvent.bind(this));
+            $(this.flipHorizontal).on("click vclick", this.flipImageHorizontalEvent.bind(this));
+            $(this.removeHandle).on("click vclick", this.remove.bind(this));
         },
 
         render: function () {
