@@ -797,8 +797,8 @@ $(function () {
             this.calculateScreenCenterPoint();
             this.rotatableHandlerDrag = true;
 
-            this.documentEl.bind("mousemove vmousemove", this.onMoveEvent);
-            this.documentEl.bind("mouseup vmouseup", this.onEndEvent);
+            this.documentEl.bind("mousemove", this.onMoveEvent);
+            this.documentEl.bind("mouseup", this.onEndEvent);
         },
 
         resizableStart: function(e) {
@@ -807,8 +807,8 @@ $(function () {
             this.calculateScreenCenterPoint();
             this.resizableHandlerDrag = true;
 
-            this.documentEl.bind("mousemove vmousemove", this.onMoveEvent);
-            this.documentEl.bind("mouseup vmouseup", this.onEndEvent);
+            this.documentEl.bind("mousemove", this.onMoveEvent);
+            this.documentEl.bind("mouseup", this.onEndEvent);
         },
 
         draggableStart: function(e) {
@@ -822,8 +822,8 @@ $(function () {
             this.startMouseX = e.pageX;
             this.startMouseY = e.pageY;
 
-            this.documentEl.bind("mousemove vmousemove", this.onMoveEvent);
-            this.documentEl.bind("mouseup vmouseup", this.onEndEvent);
+            this.documentEl.bind("mousemove", this.onMoveEvent);
+            this.documentEl.bind("mouseup", this.onEndEvent);
         },
 
         onMoveEvent: function(e) {
@@ -934,15 +934,15 @@ $(function () {
             this.rotatableHandlerDrag = false;
             this.resizableHandlerDrag = false;
             this.draggableHandlerDrag = false;
-            this.documentEl.unbind("mousemove vmousemove", this.onMoveEvent);
-            this.documentEl.unbind("mouseup vmousemove", this.onEndEvent);
+            this.documentEl.unbind("mousemove", this.onMoveEvent);
+            this.documentEl.unbind("mouseup", this.onEndEvent);
         },
 
         onAnimationFrame: function() {
             this.model.set({
-                "x": this.pendingX,
-                "y": this.pendingY,
-                "width": this.pendingWidth,
+                x: this.pendingX,
+                y: this.pendingY,
+                width: this.pendingWidth,
                 height: this.pendingHeight,
                 rotation: this.pendingRotation
             });
@@ -1071,19 +1071,89 @@ $(function () {
         },
 
         bindEvents: function() {
-            $(this.draggableHandle).bind("mousedown vmousedown", this.draggableStart);
-            $(this.draggableHandle).on("mousedown vmousedown", this.setActiveStatus.bind(this));
+            $(this.draggableHandle).bind("mousedown", this.draggableStart);
+            $(this.draggableHandle).on("mousedown", this.setActiveStatus.bind(this));
 
-            $(this.ulResizableHandle).bind("mousedown vmousedown", this.resizableStart);
-            $(this.urResizableHandle).bind("mousedown vmousedown", this.resizableStart);
-            $(this.llResizableHandle).bind("mousedown vmousedown", this.resizableStart);
-            $(this.lrResizableHandle).bind("mousedown vmousedown", this.resizableStart);
+            $(this.ulResizableHandle).bind("mousedown", this.resizableStart);
+            $(this.urResizableHandle).bind("mousedown", this.resizableStart);
+            $(this.llResizableHandle).bind("mousedown", this.resizableStart);
+            $(this.lrResizableHandle).bind("mousedown", this.resizableStart);
 
-            $(this.rotatableHandle).bind("mousedown vmousedown", this.rotatableStart);
+            $(this.rotatableHandle).bind("mousedown", this.rotatableStart);
 
-            $(this.flipVertical).on("click vclick", this.flipImageVerticalEvent.bind(this));
-            $(this.flipHorizontal).on("click vclick", this.flipImageHorizontalEvent.bind(this));
-            $(this.removeHandle).on("click vclick", this.remove.bind(this));
+            $(this.flipVertical).on("click", this.flipImageVerticalEvent.bind(this));
+            $(this.flipHorizontal).on("click", this.flipImageHorizontalEvent.bind(this));
+            $(this.removeHandle).on("click", this.remove.bind(this));
+
+            // Mobile events
+            var them = this;
+
+            var mc = new Hammer.Manager($(this.draggableHandle)[0]);
+
+            var pinch = new Hammer.Pinch();
+            var rotate = new Hammer.Rotate();
+            var pan = new Hammer.Pan();
+
+            // we want to detect both the same time
+            pinch.recognizeWith(rotate);
+
+            // add to the Manager
+            mc.add([pinch, rotate, pan]);
+
+            // ROTATE EVENT
+            var currentRotation = them.model.get('rotation'), lastRotation, startRotation;
+
+            mc.on('rotatemove', function(e) {
+                // do something cool
+                var diff = startRotation - Math.round(e.rotation);
+                currentRotation = lastRotation - diff;
+
+                them.model.set({
+                    rotation: currentRotation
+                });
+            });
+            mc.on('rotatestart', function(e) {
+                lastRotation = currentRotation;
+                startRotation = Math.round(e.rotation);
+            });
+            mc.on('rotateend', function(e) {
+                // cache the rotation
+                lastRotation = currentRotation;
+            });
+
+            // PINCH EVENT
+            var w = them.model.get('width'), h = them.model.get('height');
+
+            mc.on("pinch", function(e) {
+                if ( w * e.scale >= 300 ) {
+                    them.model.set({
+                        width: w * e.scale,
+                        height: h * e.scale
+                    });
+                }
+            });
+
+            mc.on("pinchend", function(e) {
+                w = w * e.scale;
+                h = h * e.scale;
+            });
+
+            // PAN EVENT
+            var deltaX = them.model.get('x'), deltaY = them.model.get('y');
+
+            mc.on('panmove', function(e) {
+                var dX = deltaX + (e.deltaX);
+                var dY = deltaY + (e.deltaY);
+
+                them.model.set({
+                    x: dX, y: dY
+                });
+            });
+
+            mc.on('panend', function(e) {
+                deltaX = deltaX + e.deltaX;
+                deltaY = deltaY + e.deltaY;
+            });
         },
 
         render: function () {

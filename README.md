@@ -2,7 +2,7 @@
 
 Demo http://vladrub.github.io/SVG-image-editor/ Documentation and more examples coming soon.
 
-To use this editor on mobile devices, please include jQuery mobile
+To use this editor on mobile devices, please include hammer.js
 
 ## Usage
 Include files
